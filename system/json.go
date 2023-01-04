@@ -25,6 +25,12 @@ func JsonReadState() []models.State {
 	_ = json.Unmarshal(byteValue, &result)
 	return result
 }
+func JsonReadRecords() []models.Records {
+	byteValue, _ := os.ReadFile(Path + "/records/records.json")
+	var result []models.Records
+	_ = json.Unmarshal(byteValue, &result)
+	return result
+}
 
 func JsonMarshal(reg interface{}) []byte {
 	data, err := json.Marshal(reg)
@@ -44,4 +50,3 @@ func JsonWrite(data []byte, path string) {
 		log.Fatal(err)
 	}
 }
-

@@ -4,17 +4,119 @@ import (
 	"fmt"
 	set "github.com/deckarep/golang-set"
 	detector "github.com/deepakjois/gousbdrivedetector"
+	"github.com/fsnotify/fsnotify"
 	"github.com/ricochet2200/go-disk-usage/du"
+	"log"
 	"os"
+	"path/filepath"
 	"strconv"
-	"time"
+	"strings"
 	"usbWatcher/models"
 )
 
 func MonitorUsb() {
+	//----------------------------------------------------------------------------------
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer watcher.Close()
+	go func() {
+		for {
+			select {
+			case event, ok := <-watcher.Events:
+				if !ok {
+					return
+				}
+
+				//log.Println("event:", event)
+				if event.Op.String() == "[no events]" {
+					_ = watcher.Remove(event.Name)
+				}
+				//------------------------------
+				if event.Has(fsnotify.Rename) {
+					f, _ := os.Open(event.Name)
+					files, _ := f.Readdir(0)
+					for _, v := range files {
+						if v.IsDir() && v.Name() == event.Name {
+							_ = watcher.Remove(v.Name())
+						}
+					}
+				}
+				if event.Has(fsnotify.Chmod) {
+					f, _ := os.Stat(event.Name)
+					if f.Size() > 0 {
+						for k, v := range ACTION {
+							if k == event.Name {
+								ACTION[event.Name] = models.Records{
+									Path:    event.Name,
+									Date:    CurrentTime(),
+									Serial:  v.Serial,
+									Model:   v.Model,
+									Size:    Round(float64(f.Size()), 2),
+									ModTime: f.ModTime(),
+									Event:   fsnotify.Chmod,
+								}
+							}
+						}
+					}
+				}
+				//------------------------------
+				if event.Has(fsnotify.Create) {
+					f, _ := os.Open(event.Name)
+					files, _ := f.Readdir(0)
+					if len(files) > 0 {
+						_ = filepath.Walk(event.Name, func(path string, info os.FileInfo, err error) error {
+							if err != nil {
+								return err
+							}
+							f, _ := os.Open(path)
+							files, _ := f.Readdir(0)
+							for _, v := range files {
+								if v.IsDir() {
+									_ = watcher.Add(path + "/" + v.Name())
+								}
+							}
+							return nil
+						})
+					} else {
+						f, _ := os.Stat(event.Name)
+						if f.IsDir() {
+							_ = watcher.Add(event.Name)
+						} else {
+
+							for _, v := range USB {
+								if strings.Contains(event.Name, v.Path) {
+									ACTION[event.Name] = models.Records{
+										Path:    event.Name,
+										Date:    CurrentTime(),
+										Serial:  v.Serial,
+										Model:   v.Model,
+										Size:    Round(float64(f.Size()), 2),
+										ModTime: f.ModTime(),
+										Event:   fsnotify.Create,
+									}
+									break
+								}
+							}
+
+						}
+					}
+				}
+
+			case err, ok := <-watcher.Errors:
+				if !ok {
+					return
+				}
+				log.Println("error:", err)
+			}
+		}
+	}()
+	//----------------------------------------------------------------------------------
 	reg := JsonReadInfoUsb()
 	logs := JsonReadLogs()
 	states := JsonReadState()
+	records := JsonReadRecords()
 	for {
 		var UsbAll, UsbConnect []interface{}
 		if len(reg) > 0 {
@@ -87,6 +189,21 @@ func MonitorUsb() {
 							Free:   usage.Free() / (MB),
 							Copy:   copy,
 						}
+						SendNotifyDesktop("Dispositivo conectado", model+" "+strconv.Itoa(int(usage.Size()/(GB)))+"GB")
+						_ = watcher.Add(path)
+						_ = filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+							if err != nil {
+								return err
+							}
+							f, _ := os.Open(path)
+							files, _ := f.Readdir(0)
+							for _, v := range files {
+								if v.IsDir() {
+									_ = watcher.Add(path + "/" + v.Name())
+								}
+							}
+							return nil
+						})
 						//	--------------------------------------------------------------------
 					} else {
 						UsbConnect = append(UsbConnect, value.Serial)
@@ -144,8 +261,12 @@ func MonitorUsb() {
 							Model:       v.Model,
 							Serial:      v.Serial,
 							Size:        v.Size / (GB),
-							Description: "Copiado " + strconv.FormatFloat(float64(v.Copy), 'g', 5, 64) + "MB, desconectado" ,
+							Description: "Copiado " + strconv.FormatFloat(float64(v.Copy), 'g', 5, 64) + "MB, desconectado",
 						})
+						SendNotifyDesktop(
+							"Dispositivo desconectado",
+							v.Model+" "+strconv.Itoa(int(v.Size/(GB)))+"GB \n Copiado "+strconv.FormatFloat(float64(v.Copy), 'g', 5, 64)+"MB\n cobrar $"+strconv.FormatFloat(Round((float64(v.Copy)/1024)*5, 1), 'g', 5, 64))
+						_ = watcher.Remove(v.Path)
 					}
 				}
 				delete(USB, k)
@@ -164,6 +285,23 @@ func MonitorUsb() {
 		data = JsonMarshal(logs)
 		JsonWrite(data, Path+"/records/logs.json")
 		//-------------------------
-		time.Sleep(5 * time.Second)
+		//fmt.Println(watcher.WatchList())
+		for p, v := range ACTION {
+			if v.Size > 0 {
+				log.Println("COPY:", p, v.Serial)
+				records = append(records, models.Records{
+					Path:    v.Path,
+					Date:    CurrentTime(),
+					Serial:  v.Serial,
+					Model:   v.Model,
+					Size:    Round(v.Size, 2),
+					ModTime: v.ModTime,
+				})
+				delete(ACTION, p)
+			}
+			//time.Sleep(5 * time.Second)
+		}
+		data = JsonMarshal(records)
+		JsonWrite(data, Path+"/records/records.json")
 	}
 }

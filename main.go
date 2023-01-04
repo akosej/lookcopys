@@ -1,27 +1,35 @@
 package main
 
 import (
-
-	//"github.com/gofiber/adaptor/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"time"
-	"usbWatcher/models"
 	"usbWatcher/routes"
 	"usbWatcher/system"
 )
-type Client struct {
-	name   string
-	events chan *models.Logs
-}
+
 func main() {
-	system.CreateDirectoryIfDoesntExist(system.Path+"/records")
+	//if runtime.GOOS == "windows"{
+	//	notification := toast.Notification{
+	//		AppID: "LookCopys",
+	//		Title: "Mensaje",
+	//		Message: "Se ha iniciado el monitor de copias, desea abrir el programa.",
+	//		Icon: "./frontend/look.png", // This file must exist (remove this line if it doesn't)
+	//		ActivationArguments: "http://127.0.0.1:5323",
+	//		Actions: []toast.Action{
+	//			{"Open browser", "Abrir!", "http://127.0.0.1:5323"},
+	//		},
+	//	}
+	//	_= notification.Push()
+	//}
+	system.CreateDirectoryIfDoesntExist(system.Path + "/records")
 	go system.MonitorUsb()
+	system.SendNotifyDesktop("Alerta", "LookCopys se ha iniciado")
 	// ------------------------------------------------------------------------------------------------------------
 	// ------- RUN API-AGA-SENTINEL
 	// ------------------------------------------------------------------------------------------------------------
 	app := fiber.New(fiber.Config{
-		AppName:       "OWL-MonitorUsb v1.0",
+		AppName:       "LookCopys v1.0",
 		CaseSensitive: true,
 		//EnablePrintRoutes: true,
 		//GETOnly: true,
@@ -46,6 +54,7 @@ func main() {
 	_ = app.Listen(":5323")
 
 }
+
 //
 //func handler(f http.HandlerFunc) http.Handler {
 //	return http.HandlerFunc(f)

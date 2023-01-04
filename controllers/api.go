@@ -38,9 +38,32 @@ func ApiStatus(c *fiber.Ctx) error {
 		}
 	}
 
+	records := system.JsonReadRecords()
+	var onl []models.InfoUsbOut
+	for k, onli := range online {
+		var recs []models.Records
+		for _, v := range records {
+			if v.Serial == onli.Serial && v.Model == onli.Model {
+				recs = append(recs, v)
+			}
+		}
+		onl = append(onl, models.InfoUsbOut{
+			Id:      k,
+			Path:    onli.Path,
+			Date:    onli.Date,
+			Serial:  onli.Serial,
+			Model:   onli.Model,
+			Size:    onli.Size,
+			Used:    onli.Used,
+			Free:    onli.Free,
+			Copy:    onli.Copy,
+			Records: recs,
+		})
+	}
+
 	return c.JSON(fiber.Map{
-		"today": today,
-		"online": online,
+		"today":  today,
+		"online": onl,
 		"states": states,
 		"gb":     gb,
 		"series": series,
