@@ -1,10 +1,9 @@
-project_name: backend
+project_name: LookCopys
 builds:
   - env:
       - CGO_ENABLED=0
     goos:
       - linux
-      - darwin
       - windows
     goarch:
       - 386
@@ -12,8 +11,6 @@ builds:
       - arm
       - arm64
     ignore:
-      - goos: darwin
-        goarch: 386
       - goos: windows
         goarch: 386
 checksum:
