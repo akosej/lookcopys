@@ -4,18 +4,11 @@ builds:
       - CGO_ENABLED=0
     goos:
       - linux
-      - darwin
-      - windows
     goarch:
       - 386
       - amd64
       - arm
       - arm64
-    ignore:
-      - goos: darwin
-        goarch: 386
-      - goos: windows
-        goarch: 386
 checksum:
   name_template: "{{ .ProjectName }}-{{ .Version }}-checksums.sha256"
 changelog:
@@ -28,9 +21,6 @@ changelog:
       - Merge branch
 archives:
   - name_template: "{{ .ProjectName }}-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
-    format_overrides:
-      - goos: windows
-        format: zip
 nfpms:
   - file_name_template: '{{ .ProjectName }}_{{ .Arch }}'
     homepage:  https://github.com/akosej/lookcopys
@@ -40,4 +30,3 @@ nfpms:
     vendor: Akosej
     formats:
       - deb
-      - rpm
