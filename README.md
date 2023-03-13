@@ -1,26 +1,27 @@
-![logo](/img/look.png)
-# lookcopys
+ 
+# lookcopys ![logo](./frontend/look.png)
 **Multiplatform application to monitor the copies that are made on USB devices**
 
-![logo](/img/lookcopysapp.png)
+![preview](./frontend/lookcopysapp.png)
 
 >Keeps a record of all connected devices and what has been copied from the PC running the application
 
 
-![version](/img/version1.svg)
+![version](./frontend/version1.svg)
 
 
-## Front-End Versions
-![react](/img/react-logo.png)
+## Programming languages used
+![react](./frontend/react-go.png)
 
-## Back-End Version
 
 
 ## Browser Support
-
 At present, we officially aim to support the last two versions of the following browsers:
 
-![Browsers](/img/navegadores.png)
+![react](./frontend/chrome.png)
+![react](./frontend/firefox.png)
+![react](./frontend/edge.png)
+![react](./frontend/safari.png)
 
 ## Manual compilation
 1. Download or clone the repository from [github](https://github.com/akosej/lookcopys).
