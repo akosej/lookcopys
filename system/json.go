@@ -2,9 +2,9 @@ package system
 
 import (
 	"encoding/json"
+	"github.com/akosej/lookcopys/models"
 	"log"
 	"os"
-	"usbWatcher/models"
 )
 
 func JsonReadInfoUsb() []models.InfoUsb {

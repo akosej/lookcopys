@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/akosej/lookcopys/routes"
+	"github.com/akosej/lookcopys/system"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"time"
-	"usbWatcher/routes"
-	"usbWatcher/system"
 )
 
 func init() {

@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"usbWatcher/controllers"
+	"github.com/akosej/lookcopys/controllers"
 	"github.com/gofiber/fiber/v2"
 )
 

@@ -2,6 +2,7 @@ package system
 
 import (
 	"fmt"
+	"github.com/akosej/lookcopys/models"
 	set "github.com/deckarep/golang-set"
 	detector "github.com/deepakjois/gousbdrivedetector"
 	"github.com/fsnotify/fsnotify"
@@ -11,7 +12,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"usbWatcher/models"
 )
 
 func MonitorUsb() {

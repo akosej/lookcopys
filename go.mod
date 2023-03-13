@@ -1,4 +1,4 @@
-module usbWatcher
+module github.com/akosej/lookcopys
 
 go 1.19
 

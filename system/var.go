@@ -1,8 +1,8 @@
 package system
 
 import (
+	"github.com/akosej/lookcopys/models"
 	"os"
-	"usbWatcher/models"
 )
 
 var (

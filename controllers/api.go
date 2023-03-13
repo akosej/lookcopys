@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"github.com/akosej/lookcopys/models"
+	"github.com/akosej/lookcopys/system"
 	"github.com/gofiber/fiber/v2"
-	"usbWatcher/models"
-	"usbWatcher/system"
 )
 
 func ApiStatus(c *fiber.Ctx) error {
