@@ -1,8 +1,8 @@
 package system
 
 import (
+	"github.com/akosej/lookcopys/models"
 	"github.com/jaypipes/ghw"
-	"usbWatcher/models"
 )
 
 func IfSerial(reg []interface{}, serial string) bool {
@@ -42,7 +42,7 @@ func IsDayState(states []models.State) bool {
 
 func GetCopiedDay(regs []models.InfoUsb) float64 {
 	var copied float64
-	for _, reg := range regs{
+	for _, reg := range regs {
 		if reg.Date == GetDay() {
 			copied += float64(reg.Copy)
 		}
@@ -51,8 +51,8 @@ func GetCopiedDay(regs []models.InfoUsb) float64 {
 }
 
 func GetInfoDay(regs []models.InfoUsb) []models.InfoUsb {
-	for i, reg := range regs{
-		if reg.Date != GetDay(){
+	for i, reg := range regs {
+		if reg.Date != GetDay() {
 			if i+1 <= len(regs) {
 				regs = append(regs[:i], regs[i+1:]...)
 			}
